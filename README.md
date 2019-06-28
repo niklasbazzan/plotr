@@ -1,14 +1,13 @@
 # An app, written for _Effektiv Altruisme Norge_
 
-## How to install it:
+## How to run it:
 
-Install the following packages in __RStudio__ prior to running the application.
+First, install the following packages in __RStudio__. Just paste the following into the console.
 
+```R
+install.packages("shiny")
+install.packages("tidyverse")
 ```
-install.packages(shiny)
-install.packages(tidyverse)
-```
 
-## Running the app
 
-Simply open the code in __RStudio__ and press "Run App" in the top right of the source pane.
+Next, simply open the "App.R" file in __RStudio__ and press _Run App_ in the top right of the source pane.
