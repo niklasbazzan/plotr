@@ -2,7 +2,7 @@
 
 ## Running the application
 
-First, install the following packages in __RStudio__. Simply paste the following into the console.
+First, install the following packages in __RStudio__. Simply paste the following code into the console.
 
 ```R
 install.packages("shiny")
