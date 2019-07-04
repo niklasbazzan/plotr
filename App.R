@@ -1,176 +1,154 @@
 library(shiny)
 library(tidyverse)
 
-analysethis <- mtcars
 
 ui <- fluidPage(
-h2("analysethis, a database of cars"),
-hr(),
-fluidRow(
-  mainPanel(
-    NULL, DT::dataTableOutput("mytable")
-  ),
-  sidebarPanel(
-    checkboxGroupInput("show_vars", "Velg hvilke kolonner du vil se:",
-                       names(analysethis), selected = names(analysethis))
-  )
-),
-hr(),
-fluidRow(
-  column(6,
-  h2("1. Velg visualisering"),
-  radioButtons("visualisation", NULL, choices = c("Spredningsplott", "Histogram", "Stolpediagram",  "Kumulativ fordeling"), selected = NULL,
-               inline = FALSE, width = NULL), offset = 0),
-  column(6,
-  h2("2. Velg variabler"),
-  conditionalPanel(
-    condition = "input.visualisation == 'Spredningsplott'", 
-    selectInput('xcol', 'x Variable', names(analysethis)),
-    selectInput('ycol', 'y Variable', names(analysethis), selected = names(analysethis)[[2]])
+    h1("Welcome to ggplotr."),
+    h3("Step 1: Select data"),
+  hr(),
+  
+    sidebarPanel(h4("Choose a dataset:"),
+      selectInput(
+        "dataset",
+        NULL,
+        choices = ls('package:datasets'),
+        selected = "trees"
+      )
+
     ),
-  conditionalPanel(
-    condition = "input.visualisation == 'Histogram'", 
-    radioButtons("histbuttons", NULL, choices = c(names(analysethis)), selected = NULL,
-                 inline = FALSE, width = NULL)
-  ),
-  conditionalPanel(
-    condition = "input.visualisation == 'Stolpediagram'", 
-    selectInput('xcol', 'x Variable', names(analysethis)),
-    selectInput('ycol', 'y Variable', names(analysethis), selected = names(analysethis)[[2]])
-  ),
-  conditionalPanel(
-    condition = "input.visualisation == 'Kumulativ fordeling'", 
-    radioButtons("kumulativbuttons", NULL, choices = c(names(analysethis)), selected = NULL,
-                 inline = FALSE, width = NULL)
+    mainPanel(
+      h4("Have a look a the data:"),
+      value = 2,
+      radioButtons(
+        "choice",
+        NULL,
+        choices = c(
+          "Dataset" = 1,
+          "Structure" = 2,
+          "Summary" = 3
+        )
+      ),
+      wellPanel(
+      conditionalPanel(condition = "input.choice==1", verbatimTextOutput("dat")),
+      conditionalPanel(condition = "input.choice==2", verbatimTextOutput("struct")),
+      conditionalPanel(condition = "input.choice==3", verbatimTextOutput("summary"))
     )
-  )
-),
-fluidRow(
-  column(5,
-    h2("3. Resultat:"),
-    conditionalPanel(
-      condition = "input.visualisation == 'Spredningsplott'", plotOutput('scatter')
-    ),
-    conditionalPanel(
-      condition = "input.visualisation == 'Histogram'", plotOutput('hist')
-      ),
-  conditionalPanel(
-    condition = "input.visualisation == 'Stolpediagram'", plotOutput('bar')
-      ),
-  conditionalPanel(
-    condition = "input.visualisation == 'Kumulativ fordeling'", plotOutput('kumulativ')
   ),
-  conditionalPanel(
-    condition = "input.features == 'Stats'", verbatimTextOutput('summary')
-  )
-),
-  column(5,
-h2("4. Tilpass"),
-        
-textInput("plottitle", label = h5("Tittel:")),
-         hr(), verbatimTextOutput("value"),
+  fluidRow(
+    column(6,
+           h3("Step 2: Choose a visualisation"),
+           tabsetPanel(id = 'choosetab',
+              tabPanel("1-Variable", value = 1,
+                            radioButtons("plottype1", NULL, choices = c("Histogram" = "geom_histogram", "Dotplot" = "geom_dotplot"), 
+                                             selected = NULL,
+                                             inline = FALSE, width = NULL)),
+              tabPanel("2-Variable", value = 2,
+                            radioButtons("plottype2", NULL, choices = c("Scatterplot" = "geom_point", "Boxplot" = "geom_boxplot"), selected = NULL,
+                                             inline = FALSE, width = NULL))
+           )
+           , offset = 0),
+    column(6,
+          
+           conditionalPanel(
+             condition = "input.choosetab == 1",
+             h3("Step 3: Select variable"),
+             uiOutput("varx_only")
+           ),
+           conditionalPanel(
+             condition = "input.choosetab == 2",
+             h3("Step 3: Select variables"),
+             uiOutput("varx"), uiOutput("vary")
+           )
+           , offset = 0)
+  ),
+  fluidRow(
+    column(4,
+      conditionalPanel(
+        condition = "input.choosetab == 1",
+        plotOutput("plot1var") 
+      ),         
+      conditionalPanel(
+        condition = "input.choosetab == 2",
+        plotOutput("plot2var") 
+      )
+           
+           ,offset = 1),
+    column(5,
+    h3("Step 4: Customize plot"),
+    textInput("plot_title", label = h5("Title:")),
+    textInput("sub_title", label = h5("Subtitle:")),
+    textInput("caption", label = h5("Caption:")),
+    hr()
+    
 
-checkboxGroupInput("features", "Legg til elementer:",
-                   c("Stats", "Trendline"), selected = NULL),
-
-hr(),
-
-downloadButton("eksport", "Last ned visualisering"),
-radioButtons("eksporttyp", NULL, list("png", "pdf"))
-         , offset = 1)
+      
+    ,offset = 1)
   )
 )
 
+
+
+server <- function(input, output) {
+  geomtype1 <- reactive({input$plottype1})
+
+  # Get the value of the dataset that is selected by user from the list of datasets
+  data <- reactive({
+    get(input$dataset)
+  })
   
-
-server <- function(input, output){
-  analysethis2 = analysethis[sample(nrow(analysethis)), ]
-  output$mytable <- DT::renderDataTable({
-    DT::datatable(analysethis2[, input$show_vars, drop = FALSE])
+  # Output the dataset
+  output$dat <- renderPrint({
+    data()
   })
-#spredningsplott
-  scatterdata <- reactive({
-    analysethis[, c(input$xcol, input$ycol)]
+  
+  # Pulling the list of variables for choice of variable x, for 1 variable plot
+  output$varx_only <- renderUI({
+    selectInput("variablex_only", "select the X variable", choices = names(data()))
   })
-  output$scatter <- renderPlot({
-    plot(scatterdata(), main = paste(input$plottitle))
+  
+  # Pulling the list of variables for choice of variable x, for 2 variable plot
+  output$varx <- renderUI({
+    selectInput("variablex", "Select the X variable", choices = names(data()))
   })
-
-#histogram
-  histdata <- reactive({
-    analysethis[, c(input$histbuttons)]
-  })
-  output$hist <- renderPlot({
-    hist(histdata(), main = paste(input$plottitle), xlab = input$histbuttons)
-  })
-
-#stolpediagram
-    bardata <- reactive({list(
-      xbar = input$xcol,
-      ybar = input$ycol,
-      names = c("xbar", "ybar"),
-      class = data.frame
-      )
-  })
-  output$bar <- renderPlot({
-    barplot(bardata$xbar, bardata$ybar, main = paste(input$plottitle))
-  })
-#kumulativ fordeling
-  kumulativdata <- reactive({
-    cumsum(analysethis[,(input$kumulativbuttons)])
-  })
-  output$kumulativ <- renderPlot({
-    plot(kumulativdata(), main = paste(input$plottitle), xlab = input$kumulativbuttons)
-  })
-#generic plot object
-  genericplot <- reactive({
-    if(input$visualisation == "Spredningsplott"){
-genericplot <- plot(analysethis[, c(input$xcol, input$ycol)], main = paste(input$plottitle))
-    }
-    else if(input$visualisation == "Histogram"){
-genericplot <- hist(analysethis[, c(input$histbuttons)], main = paste(input$plottitle), xlab = input$histbuttons)
-    }
-    else if(input$visualisation == "Stolpediagram"){
-genericplot <- hist(analysethis[, c(input$histbuttons)], main = paste(input$plottitle), xlab = input$histbuttons)
-    }
-    else if(input$visualisation == "Kumulativ fordeling"){
-genericplot <- plot(kumulativdata(), main = paste(input$plottitle), xlab = input$kumulativbuttons)
-    }
-  })
-#generic data object
-  genericdata <- reactive({
-    if(input$visualisation == "Spredningsplott"){
-      genericdata <- analysethis[, c(input$xcol, input$ycol)]
-    }
-    else if(input$visualisation == "Histogram"){
-      genericdata <- analysethis[, c(input$histbuttons)]
-    }
-    else if(input$visualisation == "Stolpediagram"){
-      genericdata <- analysethis[, c(input$histbuttons)]
-    }
-    else if(input$visualisation == "Kumulativ fordeling"){
-      genericdata <- cumsum(analysethis[,(input$kumulativbuttons)])
-    }
-  })
-#summary feature
-  output$summary <- renderPrint({
-    summary(genericdata())
-  })
-#download button
-  output$eksport <- downloadHandler(
-    filename =  function() {
-      paste("plott", input$eksporttyp, sep=".")
-    },
+  
+  # Pulling the list of variables for choice of variable y, for 2 variable plot
+  output$vary <- renderUI({
+    selectInput("variabley", "Select the Y variable", choices = names(data()))
     
-    content = function(file) {
-      if(input$eksporttyp == "png")
-        png(file) 
-      else
-        pdf(file)
-      paste(genericplot())
-      dev.off()  
-    })
+  })
+  
+  # Output dataset structure
+  output$struct <- renderPrint({
+    str(get(input$dataset))
+  })
+  
+  # Output dataset summary
+  output$summary <- renderPrint({
+    summary(get(input$dataset))
+  })
+  
+  # plots
+  # 1 variable plot
+  output$plot1var <- renderPlot({
+    geomtype1 <- switch(input$plottype1,
+                   geom_histogram = geom_histogram(),
+                   geom_dotplot = geom_dotplot())
+    ggplot(data(), aes_string(x = input$variablex_only)) +
+      geomtype1 + labs(title = input$plot_title,
+                          subtitle = input$sub_title,
+                          caption = input$caption)
+  })
+  # 2 variable plot
+  output$plot2var <- renderPlot({
+    geomtype2 <- switch(input$plottype2,
+                        geom_point = geom_point(),
+                        geom_boxplot = geom_boxplot())
+    ggplot(data(), aes_string(x = input$variablex, y = input$variabley)) +
+      geomtype2 + labs(title = input$plot_title,
+                         subtitle = input$sub_title,
+                         caption = input$caption)
+  })
+  
 }
 
-shinyApp(ui, server)
-
+shinyApp(ui = ui, server = server)
