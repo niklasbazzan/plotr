@@ -1,6 +1,6 @@
-# An app, written for [Effektiv Altruisme Norge](https://effektivaltruisme.no/)*
+## An app, written for [Effektiv Altruisme Norge](https://effektivaltruisme.no/)*
 *Note: This app is a work in progress.
-## Running the application
+## Running the app
 
 First, install the following packages in __RStudio__. Simply paste the following code into the console.
 
