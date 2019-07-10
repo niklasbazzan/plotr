@@ -4,36 +4,43 @@ library(tidyverse)
 
 ui <- fluidPage(
     h1("Welcome to ggplotr."),
-    h3("Step 1: Select data"),
-  hr(),
-  
-    sidebarPanel(h4("Choose a dataset:"), # Choose data
-      selectInput(
-        "dataset",
-        NULL,
-        choices = ls('package:datasets'),
-        selected = "iris"
+    h5("An app for interactive visualisation of data."),
+    
+    br(), 
+    
+    h3("Step 1: Data"),
+  mainPanel(
+    tabsetPanel(id = "step1",
+      tabPanel("R datasets", value = 1, h4("Choose a dataset:"), # Choose R data
+               selectInput(
+                 "dataset",
+                 NULL,
+                 choices = ls('package:datasets'),
+                 selected = "iris")),
+      tabPanel("Connect to a SQL database", value = 2
+        
       )
-
-    ),
-    mainPanel(
-      h4("Have a look a the data:"), # Look at data
-      value = 2,
-      radioButtons(
-        "choice",
-        NULL,
-        choices = c(
-          "Dataset" = 1,
-          "Structure" = 2,
-          "Summary" = 3
-        )
-      ),
-      wellPanel(
-      conditionalPanel(condition = "input.choice==1", verbatimTextOutput("dat")),
-      conditionalPanel(condition = "input.choice==2", verbatimTextOutput("struct")),
-      conditionalPanel(condition = "input.choice==3", verbatimTextOutput("summary"))
     )
   ),
+  
+  br(),
+
+    mainPanel(
+      conditionalPanel(condition = "input.step1 == 1",
+        h4("Have a look a the data:"), # Look at data
+          value = 2,
+            radioButtons("choice", NULL, choices = c("Dataset" = 1, "Structure" = 2, "Summary" = 3)
+                       ),
+                      
+                       wellPanel(
+                         conditionalPanel(condition = "input.choice==1", verbatimTextOutput("dat")),
+                         conditionalPanel(condition = "input.choice==2", verbatimTextOutput("struct")),
+                         conditionalPanel(condition = "input.choice==3", verbatimTextOutput("summary"))
+                       )
+      )
+  ),
+  
+  conditionalPanel(condition = "input.step1 == 1",
   fluidRow(
     column(6,
            h3("Step 2: Choose a plot type"), # Choose plot type
@@ -50,10 +57,10 @@ ui <- fluidPage(
                                              inline = FALSE, width = NULL))
            )
            , offset = 0),
-    column(6,                                 # Choose variable(s)
+    column(2,                                 # Choose variable(s)
            conditionalPanel(
              condition = "input.choosetab == 1",
-             h3("Step 3: Select variable"),
+             h3("Step 3: Select a variable"),
              uiOutput("varx_only")
            ),
            conditionalPanel(
@@ -61,7 +68,13 @@ ui <- fluidPage(
              h3("Step 3: Select variables"),
              uiOutput("varx"), uiOutput("vary")
            )
-           , offset = 0)
+          
+           , offset = 0),
+    column(2, 
+           wellPanel(
+             h5("Choose a variable to colour by:"), # Choose a variable to colour by
+             uiOutput("var_col"))
+          , offset = 0)
   ), # Output plot
   fluidRow(
     column(4,
@@ -76,7 +89,7 @@ ui <- fluidPage(
            
            ,offset = 1),
     column(2,
-    h3("Step 4: Customize plot"), # Customize plot
+    h3("Step 4: Customize the plot"), # Customize plot
     textInput("plot_title", label = h5("Title:")),
     textInput("sub_title", label = h5("Subtitle:")),
     textInput("caption", label = h5("Caption:")),
@@ -91,16 +104,13 @@ ui <- fluidPage(
         conditionalPanel(condition = "input.plottype2 == 'geom_point' && input.choosetab == 2",
                           checkboxInput("regline", label = h5("Show regression line?"), value = TRUE),
                          hr()
-        ),
-        wellPanel(
-                  h5("Choose group to colour by:"),
-                  uiOutput("var_col"))
+        )
            , offset = 0),
     column(2,
            wellPanel(
            downloadButton("eksport", "Export plot"), # Export button
            radioButtons("eksporttyp", NULL, list("png", "pdf")))
-           ,offset = 0)
+           ,offset = 0))
   )
 )
 
@@ -121,7 +131,7 @@ server <- function(input, output) {
   
   # Pulling the list of variables for choice of variable x, for 1 variable plot
   output$varx_only <- renderUI({
-    selectInput("variablex_only", "select the X variable", choices = names(data()))
+    selectInput("variablex_only", "X variable:", choices = names(data()))
   })
   
   output$var_col <- renderUI({
@@ -130,12 +140,12 @@ server <- function(input, output) {
   
   # Pulling the list of variables for choice of variable x, for 2 variable plot
   output$varx <- renderUI({
-    selectInput("variablex", "Select the X variable", choices = names(data()))
+    selectInput("variablex", "X variable:", choices = names(data()))
   })
   
   # Pulling the list of variables for choice of variable y, for 2 variable plot
   output$vary <- renderUI({
-    selectInput("variabley", "Select the Y variable", choices = names(data()))
+    selectInput("variabley", "Y variable:", choices = names(data()))
     
   })
   
