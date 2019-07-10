@@ -6,7 +6,11 @@ First, install the following packages in __RStudio__. Simply paste the following
 
 ```R
 install.packages("shiny")
+install.packages("shinyBS")
+install.packages("shinydashboard")
 install.packages("tidyverse")
+install.packages("DT")
+install.packages("RODBC")
 ```
 
 
@@ -17,3 +21,7 @@ Enjoy!
 Love,
 
 Nik
+
+## Acknowledgements
+
+This app is inspired by and borrows code from [aagarw30's](https://github.com/aagarw30) [gist](https://gist.github.com/aagarw30/c593799bc7d8557dc863411bb552e4f4) and [dashee87's](https://github.com/dashee87) [dbplotR.](https://github.com/dashee87/dbplotR).

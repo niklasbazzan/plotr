@@ -1,7 +1,12 @@
 library(shiny)
+library(shinyBS)
+library(shinydashboard)
 library(tidyverse)
+library(RODBC)
+library(DT)
 
 
+# UI ----
 ui <- fluidPage(
     h1("Welcome to ggplotr."),
     h5("An app for interactive visualisation of data."),
@@ -17,8 +22,30 @@ ui <- fluidPage(
                  NULL,
                  choices = ls('package:datasets'),
                  selected = "iris")),
-      tabPanel("Connect to a SQL database", value = 2
-        
+      tabPanel("Connect to a SQL database", value = 2, # Connect to SQL database
+               br(),
+               fluidRow(
+                 column(4,
+                   radioButtons("connect_type",label="Connection method:",
+                                choices=c("odbcConnect"="odbcC","odbcDriverConnect"="odbcDC")),
+                   br(),
+                   wellPanel(
+                     uiOutput("database_input"),
+                     uiOutput("username_input"),
+                     uiOutput("pass_input")  
+                   ),
+                   br(),
+                   bsButton("login", label = "Login",style="info",disabled=FALSE),
+                   uiOutput("login_fail"),
+                 offset = 0),
+                 column(3,
+                   h4("How to log into your SQL database:"),
+                   "This login connects to your SQL server via the RODBC package for R. A prerequisite is that you've connected your local machine to the SQL server via the local ODBC driver, for example", tags$link( a("like this.", target="_blank", href="https://www.youtube.com/watch?v=2xQX76nEdvo")),
+                   "Use a 64-bit ODBC driver and 64-bit R.",
+                        offset = 0)
+                 
+               )
+               
       )
     )
   ),
@@ -26,6 +53,23 @@ ui <- fluidPage(
   br(),
 
     mainPanel(
+      conditionalPanel(condition = "input.step1 == 2",
+                fluidRow(
+                         box(title="Type SQL Query", status = "info", width=12, solidHeader = T,collapsible = T,
+                             tagList(
+                               tags$style(type="text/css", "textarea {width:100%; margin-top: 5px; resize: vertical;}"),
+                               tags$textarea(id = "sql_query", placeholder = "SELECT * FROM table_name WHERE Variable X > n", rows = 4, value="")
+                             ),
+                             bsButton("do_sql", label = "Run",disabled=TRUE,style="primary", icon = icon("ban"))
+                         )),
+                       fluidRow(
+                         tabBox(width = 12,id="tabset1",
+                                tabPanel("Table", 
+                                         DT::dataTableOutput("view") 
+                                )
+                         )
+                       )
+      ),
       conditionalPanel(condition = "input.step1 == 1",
         h4("Have a look a the data:"), # Look at data
           value = 2,
@@ -115,8 +159,8 @@ ui <- fluidPage(
 )
 
 
-
-server <- function(input, output) {
+# SERVER ----
+server <- function(input, output, session) {
   geomtype1 <- reactive({input$plottype1})
 
   # Get the value of the dataset that is selected by user from the list of datasets
@@ -199,6 +243,146 @@ server <- function(input, output) {
       paste()
       dev.off()  
     })
+  values <- reactiveValues(loginState=-1, plotState=0, warns=0)
+  
+# SQL connection ----
+  # Input database name/connection string  
+  
+  output$database_input =  renderUI({
+    switch(input$connect_type,
+           odbcC={textInput("database", label = "Database Name", placeholder = "mydatabase", value = "")},
+           odbcDC={
+             tagList(
+               tags$label(id = "database","Connection String"),
+               tags$textarea(id = "database", placeholder = 
+                               "(No Quotations Marks!)  e.g. driver={SQL Server};
+                             server=servername\\\\instancename,port;database=testing;trusted_connection=true"
+                             ,rows=5, value="asdad"))
+           },
+           return()
+               )
+           })
+  
+  # Input database username  
+  
+  output$username_input =  renderUI({
+    switch(input$connect_type,
+           odbcC={textInput("username", label = "Username", placeholder = "myusername",value = "")},
+           return()
+    )
+  })
+  
+  # Input database password  
+  
+  output$pass_input =  renderUI({
+    
+    switch(input$connect_type,
+           odbcC={passwordInput("pass", label="Password", placeholder = "mypassword", value = "", width = NULL)},
+           return()
+    )
+    
+  })
+  
+  # Error message: login failure 
+  
+  output$login_fail =  renderUI({
+    if(values$warns[1]!=0){
+      helpText(paste0("Login Failed: ",values$warns))
+    }else{return()}
+  })
+  
+  # The following block of code runs when the shiny session is terminated
+  # Any active db connection is closed
+  
+  session$onSessionEnded(function() {
+    observe({
+      if(values$loginState!=-1){
+        odbcClose(login())
+      }
+    })
+  })
+  
+  
+  # Logging in  
+  
+  login <- eventReactive(input$login, {
+    if(input$login==0){
+      return(-1)}
+    isolate({
+      if(values$loginState==-1){
+        switch(isolate(input$connect_type),
+               odbcC = {con <- tryCatch(
+                 RODBC::odbcConnect(input$database , uid = input$username, pwd = input$pass),
+                 warning=function(c) c$message)
+               },
+               odbcDC= {con <- tryCatch(RODBC::odbcDriverConnect(input$database),
+                                        warning=function(c) c$message)
+               }
+        )
+        if(is.character(con)){
+          values$warns=con
+          con=-1
+          # it's slightly ugly, but I'm more comfortable with the convention that a failed login
+          # equates to -1
+        }
+        validate(
+          need(con!=-1, paste0("Login Failed"))
+        )
+      }else{RODBC::odbcClose(values$loginState)
+        return(-1)}
+      con})
+  },ignoreNULL=FALSE)
+  
+  # Changing login and sql button colour
+  
+  observeEvent(login(), ({
+    b <- login()
+    values$loginState <- login()
+    values$warns <- 0
+    
+    if(b==-1){
+      updateButton(session, "login",label="Login" ,disabled = FALSE, style = "info")
+      updateButton(session, "do_sql", disabled = TRUE, style = "primary")
+    }else{
+      session$sendInputMessage("database", list(value=""))
+      updateTextInput(session,"username",value="")
+      updateTextInput(session,"pass",value="")
+      updateButton(session, "login", label="Logout",disabled = FALSE, style = "danger")
+      updateButton(session, "do_sql", disabled = FALSE, style = "success",icon=icon("refresh"))
+    }
+  }))
+  sqldata <- eventReactive(input$do_sql, {
+    # remove whitespace from start and end of string
+    query_input <- gsub("^\\s+|\\s+$", "", input$sql_query)
+    # Preventing malicious SQL injections/errors
+    validate(
+      need(!grepl(";",query_input), "For security reason, queries including a semi-colon are not allowed!")
+    )
+    # No compound queries (using ;) and only queries starting with select
+    # I realise this prevents queries like "with tab1 as (...) select * from tab1"
+    validate(
+      need(tolower(gsub(" .*$", "",query_input))=="select", 
+           "Only queries starting with a select (case insensitive) are allowed")
+    )
+    withProgress(message = 'Querying...',{ query_output=sqlQuery(login(),paste0(query_input,";"))})
+    validate(
+      need(!is.character(query_output), paste0("Query failed: ",query_output[1]))
+    )
+    query_output
+  })
+  
+  # Output table from SQL query
+  
+  output$view = DT::renderDataTable({
+    table.data <- sqldata()
+    print(head(table.data))
+    table.data[sapply(table.data, is.character)] <- lapply(table.data[sapply(table.data, is.character)], 
+                                                           as.factor)
+    datatable(table.data,filter="top",rownames=FALSE,extensions="Buttons",
+              selection = list(target = 'column'),options = list(paging = TRUE, scrollX = T,
+                                                                 dom = 'Bfrtip',buttons = c('copy', 'csv', 'excel', 'pdf')))
+  })
 }
 
+# SHINY APP ----
 shinyApp(ui = ui, server = server)
