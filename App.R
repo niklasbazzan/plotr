@@ -181,9 +181,7 @@ server <- function(input, output, session) {
     selectInput("variablex_only", "X variable:", choices = names(data()))
   })
   
-  output$sql_varx_only <- renderUI({
-    selectInput("sql_variablex_only", "X variable:", choices = names(sqldata()))
-  })
+  # Pulling the list of variables to group colours by
   
   output$var_col <- renderUI({
     selectInput("variable_col", NULL, choices = names(data()))
@@ -223,12 +221,7 @@ server <- function(input, output, session) {
                           subtitle = input$sub_title,
                           caption = input$caption)
   })
-  # 1 variable sql plot
-  output$plotsql <- renderPlot({
-    
-    ggplot(sqldata(), aes_string(x = input$sql_variablex_only)) +
-      geom_histogram() 
-  })
+ 
   # 2 variable plot
   output$plot2var <- renderPlot({
     geomtype2 <- switch(input$plottype2,
@@ -242,6 +235,7 @@ server <- function(input, output, session) {
                          subtitle = input$sub_title,
                          caption = input$caption)
   })
+  
   #download button
   output$eksport <- downloadHandler(
     filename =  function() {
@@ -369,7 +363,7 @@ server <- function(input, output, session) {
     query_input <- gsub("^\\s+|\\s+$", "", input$sql_query)
     # Preventing malicious SQL injections/errors
     validate(
-      need(!grepl(";",query_input), "For security reason, queries including a semi-colon are not allowed!")
+      need(!grepl(";",query_input), "For security reasons, queries including a semi-colon are not allowed!")
     )
     # No compound queries (using ;) and only queries starting with select
     # I realise this prevents queries like "with tab1 as (...) select * from tab1"
