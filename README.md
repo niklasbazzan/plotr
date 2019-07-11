@@ -7,12 +7,7 @@ Next, install [__RStudio__](https://www.rstudio.com/products/rstudio/).
 Then install the following packages in __RStudio__. Simply paste the following code into the console.
 
 ```R
-install.packages("shiny")
-install.packages("shinyBS")
-install.packages("shinydashboard")
-install.packages("tidyverse")
-install.packages("DT")
-install.packages("RODBC")
+install.packages(c("shiny", "shinyBS", "shinydashboard", "tidyverse", "DT", "RODBC" ))
 ```
 
 
