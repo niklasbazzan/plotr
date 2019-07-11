@@ -53,7 +53,18 @@ ui <- fluidPage(
   br(),
 
     mainPanel(
-      conditionalPanel(condition = "input.step1 == 2",
+      conditionalPanel(condition = "input.step1 == 1", # Look at R packages data
+                       h4("Have a look a the data:"), 
+                       value = 2,
+                       radioButtons("choice", NULL, choices = c("Dataset" = 1, "Structure" = 2, "Summary" = 3), selected = 2),
+                       
+                       wellPanel(
+                         conditionalPanel(condition = "input.choice==1", verbatimTextOutput("dat")),
+                         conditionalPanel(condition = "input.choice==2", verbatimTextOutput("struct")),
+                         conditionalPanel(condition = "input.choice==3", verbatimTextOutput("summary"))
+                       )
+      ),
+      conditionalPanel(condition = "input.step1 == 2", # Look at SQL data
         fluidRow(
     box(title="Type SQL Query", status = "info", width=12, solidHeader = T,collapsible = T,
     tagList(
@@ -69,30 +80,12 @@ ui <- fluidPage(
               DT::dataTableOutput("view") 
                                 )
                          )
-                       ),
-  br(),
-        fluidRow(
-          
-          plotOutput("plotsql"),
-          uiOutput("sql_varx_only")
-          
-        )
-      ),
-      conditionalPanel(condition = "input.step1 == 1",
-        h4("Have a look a the data:"), # Look at data
-          value = 2,
-            radioButtons("choice", NULL, choices = c("Dataset" = 1, "Structure" = 2, "Summary" = 3)
-                       ),
-                      
-                       wellPanel(
-                         conditionalPanel(condition = "input.choice==1", verbatimTextOutput("dat")),
-                         conditionalPanel(condition = "input.choice==2", verbatimTextOutput("struct")),
-                         conditionalPanel(condition = "input.choice==3", verbatimTextOutput("summary"))
                        )
+      
       )
+      
   ), # main panel end
   
-  conditionalPanel(condition = "input.step1 == 1",
   fluidRow(
     column(6,
            h3("Step 2: Choose a plot type"), # Choose plot type
@@ -163,13 +156,11 @@ ui <- fluidPage(
            downloadButton("eksport", "Export plot"), # Export button
            radioButtons("eksporttyp", NULL, list("png", "pdf")))
            ,offset = 0))
-  )
 )
 
 
 # SERVER ----
 server <- function(input, output, session) {
-  geomtype1 <- reactive({input$plottype1})
 
   # Get the value of the dataset that is selected by user from the list of datasets
   data <- reactive({
