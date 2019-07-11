@@ -2,7 +2,7 @@
 *Note: This app is a work in progress.
 ## Running the app
 
-First, install [R](https://cran.r-project.org/bin/windows/base/), the 64-bit version.
+First, install [__R__](https://cran.r-project.org/bin/windows/base/), the 64-bit version.
 Next, install [__RStudio__](https://www.rstudio.com/products/rstudio/).
 Then install the following packages in __RStudio__. Simply paste the following code into the console.
 
