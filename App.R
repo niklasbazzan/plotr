@@ -40,7 +40,7 @@ ui <- fluidPage(
                  offset = 0),
                  column(3,
                    h4("How to log into your SQL database:"),
-                   "This login connects to your SQL server via the RODBC package for R. A prerequisite is that you've connected your local machine to the SQL server via the local ODBC driver, for example", tags$link( a("like this.", target="_blank", href="https://www.youtube.com/watch?v=2xQX76nEdvo")),
+                   "This login connects to your SQL server via the RODBC package for R. A prerequisite is that you've connected your local machine to the SQL server via the local ODBC driver, for example", tags$link( a("like this.", target="_blank", href="https://www.youtube.com/watch?v=K3GZidOwGmM&")),
                    "Use a 64-bit ODBC driver and 64-bit R.",
                         offset = 0)
                  
