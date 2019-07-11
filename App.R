@@ -82,9 +82,9 @@ ui <- fluidPage(
                          )
                        )
       
-      )
-      
-  ), # main panel end
+      ),
+  br()  
+  ), 
   
   fluidRow(
     column(6,
