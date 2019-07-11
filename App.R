@@ -54,21 +54,29 @@ ui <- fluidPage(
 
     mainPanel(
       conditionalPanel(condition = "input.step1 == 2",
-                fluidRow(
-                         box(title="Type SQL Query", status = "info", width=12, solidHeader = T,collapsible = T,
-                             tagList(
-                               tags$style(type="text/css", "textarea {width:100%; margin-top: 5px; resize: vertical;}"),
-                               tags$textarea(id = "sql_query", placeholder = "SELECT * FROM table_name WHERE Variable X > n", rows = 4, value="")
+        fluidRow(
+    box(title="Type SQL Query", status = "info", width=12, solidHeader = T,collapsible = T,
+    tagList(
+    tags$style(type="text/css", "textarea {width:100%; margin-top: 5px; resize: vertical;}"),
+    tags$textarea(id = "sql_query", placeholder = "SELECT * FROM table_name WHERE Variable X > n", rows = 4, value="")
                              ),
-                             bsButton("do_sql", label = "Run",disabled=TRUE,style="primary", icon = icon("ban"))
+      bsButton("do_sql", label = "Run",disabled=TRUE,style="primary", icon = icon("ban"))
                          )),
-                       fluidRow(
-                         tabBox(width = 12,id="tabset1",
-                                tabPanel("Table", 
-                                         DT::dataTableOutput("view") 
+  br(),
+        fluidRow(
+          tabBox(width = 12,id="tabset1",
+            tabPanel("Table", 
+              DT::dataTableOutput("view") 
                                 )
                          )
-                       )
+                       ),
+  br(),
+        fluidRow(
+          
+          plotOutput("plotsql"),
+          uiOutput("sql_varx_only")
+          
+        )
       ),
       conditionalPanel(condition = "input.step1 == 1",
         h4("Have a look a the data:"), # Look at data
@@ -82,7 +90,7 @@ ui <- fluidPage(
                          conditionalPanel(condition = "input.choice==3", verbatimTextOutput("summary"))
                        )
       )
-  ),
+  ), # main panel end
   
   conditionalPanel(condition = "input.step1 == 1",
   fluidRow(
@@ -178,6 +186,10 @@ server <- function(input, output, session) {
     selectInput("variablex_only", "X variable:", choices = names(data()))
   })
   
+  output$sql_varx_only <- renderUI({
+    selectInput("sql_variablex_only", "X variable:", choices = names(sqldata()))
+  })
+  
   output$var_col <- renderUI({
     selectInput("variable_col", NULL, choices = names(data()))
   })
@@ -215,6 +227,12 @@ server <- function(input, output, session) {
       geomtype1 + labs(title = input$plot_title,
                           subtitle = input$sub_title,
                           caption = input$caption)
+  })
+  # 1 variable sql plot
+  output$plotsql <- renderPlot({
+    
+    ggplot(sqldata(), aes_string(x = input$sql_variablex_only)) +
+      geom_histogram() 
   })
   # 2 variable plot
   output$plot2var <- renderPlot({
