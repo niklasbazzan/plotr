@@ -92,13 +92,13 @@ ui <- fluidPage(
            tabsetPanel(id = 'choosetab',
               tabPanel("1-Variable", value = 1,
                        radioButtons("plottype1", NULL, choices = c("Histogram" = "geom_histogram", "Dotplot" = "geom_dotplot", 
-                                                                   "Density" = "geom_density", "Frequency"  = "geom_freqpoly"),
+                                                                   "Density" = "geom_density", "Frequency line"  = "geom_freqpoly", 
+                                                                   "Barplot" = "geom_bar"),
                                              selected = NULL,
                                              inline = FALSE, width = NULL)),
               tabPanel("2-Variable", value = 2,
                        radioButtons("plottype2", NULL, choices = c("Scatterplot" = "geom_point", "Boxplot" = "geom_boxplot", 
-                                                                   "Line" = "geom_line", "Violinplot" = "geom_violin", 
-                                                                   "Barplot" = "geom_col"), selected = NULL,
+                                                                   "Line" = "geom_line", "Violinplot" = "geom_violin"), selected = NULL,
                                              inline = FALSE, width = NULL))
            )
            , offset = 0),
@@ -215,7 +215,8 @@ server <- function(input, output, session) {
                    geom_histogram = geom_histogram(binwidth = input$binwidth),
                    geom_dotplot = geom_dotplot(),
                    geom_density = geom_density(),
-                   geom_freqpoly = geom_freqpoly())
+                   geom_freqpoly = geom_freqpoly(),
+                   geom_bar = geom_bar())
     ggplot(data(), aes_string(x = input$variablex_only, color = input$variablex_only)) +
       geomtype1 + labs(title = input$plot_title,
                           subtitle = input$sub_title,
@@ -228,8 +229,7 @@ server <- function(input, output, session) {
                         geom_point = geom_point(),
                         geom_boxplot = geom_boxplot(),
                         geom_line = geom_line(),
-                        geom_violin = geom_violin(),
-                        geom_col = geom_col())
+                        geom_violin = geom_violin())
    ggplot(data(), aes_string(x = input$variablex, y = input$variabley, color = input$variable_col)) +
       geomtype2 + labs(title = input$plot_title,
                          subtitle = input$sub_title,
