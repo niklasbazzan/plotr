@@ -162,9 +162,13 @@ ui <- fluidPage(
 # SERVER ----
 server <- function(input, output, session) {
 
-  # Get the value of the dataset that is selected by user from the list of datasets
+  # Changes the value of the data object depending on tab choice at Step 1 (R datasets or SQL data)
   data <- reactive({
-    get(input$dataset)
+    if (input$step1 == 1){
+      data <- get(input$dataset)
+    } else if (input$step1 == 2){
+      data <- sqldata()
+    }
   })
   
   # Output the dataset
