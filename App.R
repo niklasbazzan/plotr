@@ -208,7 +208,8 @@ server <- function(input, output, session) {
     summary(get(input$dataset))
   })
   
-  # plots
+  # plots ----
+  
   # 1 variable plot
   output$plot1var <- renderPlot({
     geomtype1 <- switch(input$plottype1,
@@ -220,7 +221,7 @@ server <- function(input, output, session) {
     ggplot(data(), aes_string(x = input$variablex_only, color = input$variablex_only)) +
       geomtype1 + labs(title = input$plot_title,
                           subtitle = input$sub_title,
-                          caption = input$caption)
+                          caption = input$caption) + plot_theme
   })
  
   # 2 variable plot
@@ -233,8 +234,11 @@ server <- function(input, output, session) {
    ggplot(data(), aes_string(x = input$variablex, y = input$variabley, color = input$variable_col)) +
       geomtype2 + labs(title = input$plot_title,
                          subtitle = input$sub_title,
-                         caption = input$caption)
+                         caption = input$caption) + plot_theme
   })
+  
+  # plot theme
+  plot_theme <- theme_dark()
   
   #download button
   output$eksport <- downloadHandler(
