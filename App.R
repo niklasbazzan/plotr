@@ -276,11 +276,19 @@ server <- function(input, output, session) {
      labs(title = input$plot_title, x = input$x_title, y = input$y_title,
                          subtitle = input$sub_title, caption = input$caption) + 
      plot_theme +
-     coord_cartesian(xlim=NULL, ylim=NULL)
+     coord_cartesian(xlim=NULL, ylim=NULL) +
+     reg_line()
+     
 
   })
   
-  
+  # Regression line
+reg_line <- reactive({
+    if (input$regline == TRUE){
+      reg_line <- geom_smooth(method = "lm", se = FALSE, col = "grey")
+    } else{
+      reg_line <- NULL}
+})
   # Export plot button
   
   
