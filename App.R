@@ -155,6 +155,14 @@ ui <- fluidPage(
     ,offset = 0),
     column(2,
            wellPanel(
+             h4("Axes range"),
+             radioButtons("axesrange", NULL, choices = c("Automatic", "Manual")),
+             conditionalPanel(condition = "input.axesrange == 'Manual'",
+                              numericInput("x_min", label = h5("x-axis minimum:"), value = 0),
+                              numericInput("x_max", label = h5("x-axis maximum:"), value = 100)
+             )
+           ),
+           wellPanel(
              h4("Theme"),
              radioButtons("plottheme", NULL,
 choices = c("Grey" = "theme_grey", "Classic" = "theme_classic","Minimal" = "theme_minimal", 
@@ -162,18 +170,19 @@ choices = c("Grey" = "theme_grey", "Classic" = "theme_classic","Minimal" = "them
             "Linedraw" = "theme_linedraw", "Void" = "theme_void"))
            ),
            conditionalPanel(condition = "input.plottype1 == 'geom_histogram' && input.choosetab == 1",
-        numericInput("binwidth", label = h5("Histogram: bin width:"), value = 2),
+        wellPanel(numericInput("binwidth", label = h5("Histogram: bin width:"), value = 1)),
         hr()
            ),
         conditionalPanel(condition = "input.plottype2 == 'geom_point' && input.choosetab == 2",
-                          checkboxInput("regline", label = h5("Show regression line?"), value = TRUE),
+                wellPanel(checkboxInput("regline", label = h5("Show regression line?"), value = FALSE)),
                          hr()
         )
            , offset = 0),
     column(2,
            wellPanel(
            downloadButton("eksport", "Export plot"), # Export button
-           radioButtons("eksporttyp", NULL, list("png", "pdf")))
+           radioButtons("eksporttyp", NULL, list("png", "pdf"))),
+           hr()
            ,offset = 0))
 )
 
@@ -252,7 +261,7 @@ server <- function(input, output, session) {
      labs(title = input$plot_title, x = input$x_title, y = input$y_title,
                           subtitle = input$sub_title, caption = input$caption) + 
      plot_theme +
-     coord_cartesian(xlim=NULL, ylim=NULL)
+     coord_cartesian(xlim = xaxisrange(), ylim=NULL)
   })
  
   # 2 variable plot
@@ -289,6 +298,18 @@ reg_line <- reactive({
     } else{
       reg_line <- NULL}
 })
+
+# Axis ranges
+
+xaxisrange <- reactive({
+  if(input$axesrange == "Automatic"){
+    xaxisrange <- NULL
+  }else{
+    xaxisrange <- c(input$x_min, input$x_max)
+}
+})
+  
+
   # Export plot button
   
   
