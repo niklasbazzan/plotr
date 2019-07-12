@@ -244,7 +244,7 @@ server <- function(input, output, session) {
   # 1 variable plot
   output$plot1var <- renderPlot({
     geomtype1 <- switch(input$plottype1,
-                   geom_histogram = geom_histogram(binwidth = input$binwidth),
+                   geom_histogram = geom_histogram(binwidth = input$binwidth, stat = "count"),
                    geom_dotplot = geom_dotplot(),
                    geom_density = geom_density(),
                    geom_freqpoly = geom_freqpoly(),
@@ -260,7 +260,7 @@ server <- function(input, output, session) {
                          theme_void = theme_void())
     ggplot(data(), aes_string(x = input$variablex_only, color = input$variablex_only)) +
       geomtype1 + 
-     labs(title = input$plot_title, x = input$x_title, y = input$y_title,
+     labs(title = input$plot_title, x = xlabel1(), y = ylabel1(),
                           subtitle = input$sub_title, caption = input$caption) + 
      plot_theme +
      coord_cartesian(xlim = xaxisrange(), ylim= yaxisrange())
@@ -284,13 +284,40 @@ server <- function(input, output, session) {
                          theme_void = theme_void())
    ggplot(data(), aes_string(x = input$variablex, y = input$variabley, color = input$variable_col)) +
       geomtype2 + 
-     labs(title = input$plot_title, x = input$x_title, y = input$y_title,
+     labs(title = input$plot_title, x = xlabel2(), y = ylabel2(),
                          subtitle = input$sub_title, caption = input$caption) + 
      plot_theme +
      coord_cartesian(xlim = xaxisrange(), ylim= yaxisrange()) +
      reg_line()
      
 
+  })
+  
+  # x & y labels
+  
+  xlabel1 <- reactive({
+    if (input$xylabs == "Automatic"){
+      xlabel1 <- input$variablex_only
+    } else{
+      xlabel1 <- input$x_title}
+  })
+  xlabel2 <- reactive({
+    if (input$xylabs == "Automatic"){
+      xlabel2 <- input$variablex
+    } else{
+      xlabel2 <- input$x_title}
+  })
+  ylabel1 <- reactive({
+    if (input$xylabs == "Automatic"){
+      ylabel1 <- "Count"
+    } else{
+      ylabel1 <- input$y_title}
+  })
+  ylabel2 <- reactive({
+    if (input$xylabs == "Automatic"){
+      ylabel2 <- input$variabley
+    } else{
+      ylabel2 <- input$y_title}
   })
   
   # Regression line
