@@ -1,5 +1,5 @@
 ## __ggplotr__ is an app, written for [Effektiv Altruisme Norge](https://effektivaltruisme.no/)
-![](ggplotr preview.png)
+![](ggplotrpreview.png)
 
 ## Running the app
 
