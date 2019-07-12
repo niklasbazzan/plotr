@@ -135,9 +135,15 @@ ui <- fluidPage(
            ,offset = 1),
     column(2,
     h3("Step 4: Customize the plot"), # Customize plot
-    textInput("plot_title", label = h5("Title:")),
-    textInput("sub_title", label = h5("Subtitle:")),
-    textInput("caption", label = h5("Caption:")),
+    wellPanel(
+      h4("Titles"),
+        textInput("plot_title", label = h5("Title:")),
+        textInput("x_title", label = h5("x-axis:")),
+        textInput("y_title", label = h5("y-axis:")),
+        textInput("sub_title", label = h5("Subtitle:")),
+        textInput("caption", label = h5("Caption:"))
+    ),
+    
     hr()
   
     ,offset = 1),
@@ -217,9 +223,9 @@ server <- function(input, output, session) {
                    geom_dotplot = geom_dotplot(),
                    geom_density = geom_density(),
                    geom_freqpoly = geom_freqpoly(),
-                   geom_bar = geom_bar())
-    ggplot(data(), aes_string(x = input$variablex_only, color = input$variablex_only)) +
-      geomtype1 + labs(title = input$plot_title,
+                   geom_bar = geom_bar(stat = "count"))
+   ggplot(data(), aes_string(x = input$variablex_only, color = input$variablex_only)) +
+      geomtype1 + labs(title = input$plot_title, x = input$x_title, y = input$y_title,
                           subtitle = input$sub_title,
                           caption = input$caption) + plot_theme
   })
@@ -232,32 +238,22 @@ server <- function(input, output, session) {
                         geom_line = geom_line(),
                         geom_violin = geom_violin())
    ggplot(data(), aes_string(x = input$variablex, y = input$variabley, color = input$variable_col)) +
-      geomtype2 + labs(title = input$plot_title,
+      geomtype2 + labs(title = input$plot_title, x = input$x_title, y = input$y_title,
                          subtitle = input$sub_title,
                          caption = input$caption) + plot_theme
+
   })
   
   # plot theme
-  plot_theme <- theme_dark()
+  plot_theme <- theme_classic()
   
-  #download button
-  output$eksport <- downloadHandler(
-    filename =  function() {
-      paste("plott", input$eksporttyp, sep=".")
-    },
-    
-    content = function(file) {
-      if(input$eksporttyp == "png")
-        png(file) 
-      else
-        pdf(file)
-      paste()
-      dev.off()  
-    })
-  values <- reactiveValues(loginState=-1, plotState=0, warns=0)
+  # Export plot button
+  
   
 # SQL connection ----
   # Input database name/connection string  
+  
+  values <- reactiveValues(loginState=-1, plotState=0, warns=0)
   
   output$database_input =  renderUI({
     switch(input$connect_type,
