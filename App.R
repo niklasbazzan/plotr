@@ -159,7 +159,9 @@ ui <- fluidPage(
              radioButtons("axesrange", NULL, choices = c("Automatic", "Manual")),
              conditionalPanel(condition = "input.axesrange == 'Manual'",
                               numericInput("x_min", label = h5("x-axis minimum:"), value = 0),
-                              numericInput("x_max", label = h5("x-axis maximum:"), value = 100)
+                              numericInput("x_max", label = h5("x-axis maximum:"), value = 100),
+                              numericInput("y_min", label = h5("y-axis minimum:"), value = 0),
+                              numericInput("y_max", label = h5("y-axis maximum:"), value = 100)
              )
            ),
            wellPanel(
@@ -261,7 +263,7 @@ server <- function(input, output, session) {
      labs(title = input$plot_title, x = input$x_title, y = input$y_title,
                           subtitle = input$sub_title, caption = input$caption) + 
      plot_theme +
-     coord_cartesian(xlim = xaxisrange(), ylim=NULL)
+     coord_cartesian(xlim = xaxisrange(), ylim= yaxisrange())
   })
  
   # 2 variable plot
@@ -285,7 +287,7 @@ server <- function(input, output, session) {
      labs(title = input$plot_title, x = input$x_title, y = input$y_title,
                          subtitle = input$sub_title, caption = input$caption) + 
      plot_theme +
-     coord_cartesian(xlim=NULL, ylim=NULL) +
+     coord_cartesian(xlim = xaxisrange(), ylim= yaxisrange()) +
      reg_line()
      
 
@@ -307,6 +309,14 @@ xaxisrange <- reactive({
   }else{
     xaxisrange <- c(input$x_min, input$x_max)
 }
+})
+
+yaxisrange <- reactive({
+  if(input$axesrange == "Automatic"){
+    yaxisrange <- NULL
+  }else{
+    yaxisrange <- c(input$y_min, input$y_max)
+  }
 })
   
 
