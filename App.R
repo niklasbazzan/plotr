@@ -107,27 +107,34 @@ ui <- fluidPage(
                         "Line" = "geom_line", "Violinplot" = "geom_violin"), selected = NULL,
                                              inline = FALSE, width = NULL))
            )
-           , offset = 0),
-    column(2,                                 # Choose variable(s)
+           , offset = 0)
+  ),
+  
+  br(),
+  
+  fluidRow(
+    column(4,                                 # Choose variable(s)
            conditionalPanel(
              condition = "input.choosetab == 1",
-             h3("Step 3: Select a variable"),
-             uiOutput("varx_only")
+                h3("Step 3: Select a variable"),
+             wellPanel(
+                uiOutput("varx_only")
+                       )
            ),
            conditionalPanel(
              condition = "input.choosetab == 2",
-             h3("Step 3: Select variables"),
-             uiOutput("varx"), uiOutput("vary")
-           )
-          
-           , offset = 0),
-    column(2, 
+                h3("Step 3: Select variables"),
+             wellPanel(
+                uiOutput("varx"), uiOutput("vary")
+              )
+           ),
+    
            wellPanel(
              h4("Colour by variable:"), # Choose a variable to colour by
-             uiOutput("var_col"))
-          , offset = 0)
-  ), # Output plot
-  fluidRow(
+             uiOutput("var_col")), 
+           offset = 0),
+      
+   # Output plot
     column(6,
       conditionalPanel(
         condition = "input.choosetab == 1",
@@ -138,15 +145,20 @@ ui <- fluidPage(
         plotOutput("plot2var") 
       )
            
-           ,offset = 0),
-    column(2,
+           ,offset = 1)),
+  
+  br(),
+  
+  fluidRow(
+    column(3,
     h3("Step 4: Customize the plot"), # Customize plot
     wellPanel(
       h4("Titles"),
         textInput("plot_title", label = h5("Title:")),
         textInput("sub_title", label = h5("Subtitle:")),
         textInput("caption", label = h5("Caption:"))
-    ),
+    ), offset = 0),
+    column(3,
     wellPanel(
       h4("x & y labels"),
         radioButtons("xylabs", NULL, choices = c("Automatic", "Manual", "None")),
@@ -156,39 +168,43 @@ ui <- fluidPage(
         )
         
     ),
-    hr()
-  
-    ,offset = 0),
-    column(2,
-           wellPanel(
-             h4("Axes range"),
-             radioButtons("axesrange", NULL, choices = c("Automatic", "Manual")),
-             conditionalPanel(condition = "input.axesrange == 'Manual'",
-                              numericInput("x_min", label = h5("x-axis minimum:"), value = 0),
-                              numericInput("x_max", label = h5("x-axis maximum:"), value = 100),
-                              numericInput("y_min", label = h5("y-axis minimum:"), value = 0),
-                              numericInput("y_max", label = h5("y-axis maximum:"), value = 100)
-             )
-           ),
+    hr(),
+    wellPanel(
+      h4("Axes range"),
+      radioButtons("axesrange", NULL, choices = c("Automatic", "Manual")),
+      conditionalPanel(condition = "input.axesrange == 'Manual'",
+                       numericInput("x_min", label = h5("x-axis minimum:"), value = 0),
+                       numericInput("x_max", label = h5("x-axis maximum:"), value = 100),
+                       numericInput("y_min", label = h5("y-axis minimum:"), value = 0),
+                       numericInput("y_max", label = h5("y-axis maximum:"), value = 100)
+      )
+    ),
+hr(),
+    offset = 0),
+    column(3,
+           
            wellPanel(
              h4("Theme"),
              radioButtons("plottheme", NULL,
 choices = c("Grey" = "theme_grey", "Classic" = "theme_classic","Minimal" = "theme_minimal", 
             "Dark" = "theme_dark", "Light" = "theme_light", "B&W" = "theme_bw", 
             "Linedraw" = "theme_linedraw", "Void" = "theme_void"))
-           ),
-           conditionalPanel(condition = "input.plottype1 == 'geom_histogram' && input.choosetab == 1",
+           ), 
+hr(),
+  offset = 0),
+    column(3,
+      conditionalPanel(condition = "input.plottype1 == 'geom_histogram' && input.choosetab == 1",
         wellPanel(numericInput("binwidth", label = h5("Histogram: bin width:"), value = 1)),
-        hr()
-           ),
-        conditionalPanel(condition = "input.plottype2 == 'geom_point' && input.choosetab == 2",
-                wellPanel(checkboxInput("regline", label = h5("Show regression line?"), value = FALSE)),
-                         hr()
-        )
-           , offset = 0),
-  hr()
+hr()
+    ),
+      conditionalPanel(condition = "input.plottype2 == 'geom_point' && input.choosetab == 2",
+        wellPanel(checkboxInput("regline", label = h5("Show regression line?"), value = FALSE)),
+hr()
+      ),   
+    offset = 0), 
+hr()
    ),
-
+hr(),
 h5("Feedback, bugs, suggestions?", tags$a(href = "niklas.bazzan@protonmail.com", "Reach out."))
   
 )
