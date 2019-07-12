@@ -8,9 +8,14 @@ library(DT)
 
 # UI ----
 ui <- fluidPage(
-    h1("Welcome to ggplotr."),
-    h5("An app for interactive visualisation of data."),
-    
+        fluidRow(
+          column(10,
+            h1("Welcome to ggplotr."),
+            h5("An app for interactive visualisation of data."),
+          offset = 0
+          )
+        ),
+   
     br(), 
     
     h3("Step 1: Data"),
@@ -25,7 +30,7 @@ ui <- fluidPage(
       tabPanel("Connect to a SQL database", value = 2, # Connect to SQL database
                br(),
                fluidRow(
-                 column(4,
+                 column(5,
                    radioButtons("connect_type",label="Connection method:",
                                 choices=c("odbcConnect"="odbcC","odbcDriverConnect"="odbcDC")),
                    br(),
@@ -38,7 +43,7 @@ ui <- fluidPage(
                    bsButton("login", label = "Login",style="info",disabled=FALSE),
                    uiOutput("login_fail"),
                  offset = 0),
-                 column(3,
+                 column(7,
                    h4("How to log into your SQL database:"),
                    "This login connects to your SQL server via the RODBC package for R. A prerequisite is that you've connected your local machine to the SQL server via the local ODBC driver, for example", tags$link( a("like this.", target="_blank", href="https://www.youtube.com/watch?v=K3GZidOwGmM&")),
                    "Use a 64-bit ODBC driver and 64-bit R.",
@@ -69,7 +74,8 @@ ui <- fluidPage(
     box(title="Type SQL Query", status = "info", width=12, solidHeader = T,collapsible = T,
     tagList(
     tags$style(type="text/css", "textarea {width:100%; margin-top: 5px; resize: vertical;}"),
-    tags$textarea(id = "sql_query", placeholder = "SELECT * FROM table_name WHERE Variable X > n", rows = 4, value="")
+    tags$textarea(id = "sql_query", placeholder = "SELECT * FROM table_name WHERE Variable X > n", 
+                  rows = 4, value="")
                              ),
       bsButton("do_sql", label = "Run",disabled=TRUE,style="primary", icon = icon("ban"))
                          )),
@@ -179,8 +185,12 @@ choices = c("Grey" = "theme_grey", "Classic" = "theme_classic","Minimal" = "them
                 wellPanel(checkboxInput("regline", label = h5("Show regression line?"), value = FALSE)),
                          hr()
         )
-           , offset = 0)
-   )
+           , offset = 0),
+  hr()
+   ),
+
+h5("Feedback, bugs, suggestions?", tags$a(href = "niklas.bazzan@protonmail.com", "Reach out."))
+  
 )
 
 
