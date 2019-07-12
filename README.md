@@ -1,6 +1,6 @@
 ## __ggplotr__ is an app, written for [Effektiv Altruisme Norge](https://effektivaltruisme.no/)
 
-Note: This app is a work in progress.
+
 ## Running the app
 
 First, install [__R__](https://cran.r-project.org/bin/windows/base/), the 64-bit version.
