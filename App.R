@@ -117,7 +117,7 @@ ui <- fluidPage(
            , offset = 0),
     column(2, 
            wellPanel(
-             h5("Choose a variable to colour by:"), # Choose a variable to colour by
+             h4("Colour by variable:"), # Choose a variable to colour by
              uiOutput("var_col"))
           , offset = 0)
   ), # Output plot
@@ -143,15 +143,20 @@ ui <- fluidPage(
     ),
     wellPanel(
       h4("x & y labels"),
-        textInput("x_title", label = h5("x-axis:")),
-        textInput("y_title", label = h5("y-axis:"))
+        radioButtons("xylabs", NULL, choices = c("Automatic", "Manual")),
+        conditionalPanel(condition = "input.xylabs == 'Manual'",
+          textInput("x_title", label = h5("x-axis:")),
+          textInput("y_title", label = h5("y-axis:"))
+        )
+        
     ),
     hr()
   
     ,offset = 0),
     column(2,
            wellPanel(
-             radioButtons("plottheme", "Theme",
+             h4("Theme"),
+             radioButtons("plottheme", NULL,
 choices = c("Grey" = "theme_grey", "Classic" = "theme_classic","Minimal" = "theme_minimal", 
             "Dark" = "theme_dark", "Light" = "theme_light", "B&W" = "theme_bw", 
             "Linedraw" = "theme_linedraw", "Void" = "theme_void"))
@@ -198,7 +203,8 @@ server <- function(input, output, session) {
   # Pulling the list of variables to group colours by
   
   output$var_col <- renderUI({
-    selectInput("variable_col", NULL, choices = names(data()))
+    selectInput("variable_col", NULL, choices = c("NULL", names(data()))
+                )
   })
   
   # Pulling the list of variables for choice of variable x, for 2 variable plot
@@ -273,8 +279,6 @@ server <- function(input, output, session) {
      coord_cartesian(xlim=NULL, ylim=NULL)
 
   })
-  
-  # plot theme
   
   
   # Export plot button
