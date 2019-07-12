@@ -143,7 +143,7 @@ ui <- fluidPage(
     ),
     wellPanel(
       h4("x & y labels"),
-        radioButtons("xylabs", NULL, choices = c("Automatic", "Manual")),
+        radioButtons("xylabs", NULL, choices = c("Automatic", "Manual", "None")),
         conditionalPanel(condition = "input.xylabs == 'Manual'",
           textInput("x_title", label = h5("x-axis:")),
           textInput("y_title", label = h5("y-axis:"))
@@ -179,13 +179,8 @@ choices = c("Grey" = "theme_grey", "Classic" = "theme_classic","Minimal" = "them
                 wellPanel(checkboxInput("regline", label = h5("Show regression line?"), value = FALSE)),
                          hr()
         )
-           , offset = 0),
-    column(2,
-           wellPanel(
-           downloadButton("eksport", "Export plot"), # Export button
-           radioButtons("eksporttyp", NULL, list("png", "pdf"))),
-           hr()
-           ,offset = 0))
+           , offset = 0)
+   )
 )
 
 
@@ -298,26 +293,34 @@ server <- function(input, output, session) {
   xlabel1 <- reactive({
     if (input$xylabs == "Automatic"){
       xlabel1 <- input$variablex_only
-    } else{
+    } else if(input$xylabs == "Manual"){
       xlabel1 <- input$x_title}
+      else if (input$xylabs == "None"){
+      ylabel2 <- NULL}
   })
   xlabel2 <- reactive({
     if (input$xylabs == "Automatic"){
       xlabel2 <- input$variablex
-    } else{
+    } else if(input$xylabs == "Manual"){
       xlabel2 <- input$x_title}
+      else if (input$xylabs == "None"){
+      ylabel2 <- NULL}
   })
   ylabel1 <- reactive({
     if (input$xylabs == "Automatic"){
       ylabel1 <- "Count"
-    } else{
+    } else if (input$xylabs == "Manual"){
       ylabel1 <- input$y_title}
+      else if (input$xylabs == "None"){
+      ylabel2 <- NULL}
   })
   ylabel2 <- reactive({
     if (input$xylabs == "Automatic"){
       ylabel2 <- input$variabley
-    } else{
+    } else if (input$xylabs == "Manual"){
       ylabel2 <- input$y_title}
+      else if (input$xylabs == "None"){
+      ylabel2 <- NULL}
   })
   
   # Regression line
