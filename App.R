@@ -88,17 +88,17 @@ ui <- fluidPage(
   
   fluidRow(
     column(6,
-           h3("Step 2: Choose a plot type"), # Choose plot type
-           tabsetPanel(id = 'choosetab',
-              tabPanel("1-Variable", value = 1,
-                       radioButtons("plottype1", NULL, choices = c("Histogram" = "geom_histogram", "Dotplot" = "geom_dotplot", 
-                                                                   "Density" = "geom_density", "Frequency line"  = "geom_freqpoly", 
-                                                                   "Barplot" = "geom_bar"),
-                                             selected = NULL,
-                                             inline = FALSE, width = NULL)),
-              tabPanel("2-Variable", value = 2,
-                       radioButtons("plottype2", NULL, choices = c("Scatterplot" = "geom_point", "Boxplot" = "geom_boxplot", 
-                                                                   "Line" = "geom_line", "Violinplot" = "geom_violin"), selected = NULL,
+      h3("Step 2: Choose a plot type"), # Choose plot type
+        tabsetPanel(id = 'choosetab',
+          tabPanel("1-Variable", value = 1,
+              radioButtons("plottype1", NULL, 
+                    choices = c("Histogram" = "geom_histogram", "Dotplot" = "geom_dotplot", 
+                        "Density" = "geom_density", "Frequency line"  = "geom_freqpoly", 
+                          "Barplot" = "geom_bar"), selected = NULL, inline = FALSE, width = NULL)),
+          tabPanel("2-Variable", value = 2,
+              radioButtons("plottype2", NULL, 
+                    choices = c("Scatterplot" = "geom_point", "Boxplot" = "geom_boxplot", 
+                        "Line" = "geom_line", "Violinplot" = "geom_violin"), selected = NULL,
                                              inline = FALSE, width = NULL))
            )
            , offset = 0),
@@ -122,7 +122,7 @@ ui <- fluidPage(
           , offset = 0)
   ), # Output plot
   fluidRow(
-    column(4,
+    column(6,
       conditionalPanel(
         condition = "input.choosetab == 1",
         plotOutput("plot1var") 
@@ -132,24 +132,32 @@ ui <- fluidPage(
         plotOutput("plot2var") 
       )
            
-           ,offset = 1),
+           ,offset = 0),
     column(2,
     h3("Step 4: Customize the plot"), # Customize plot
     wellPanel(
       h4("Titles"),
         textInput("plot_title", label = h5("Title:")),
-        textInput("x_title", label = h5("x-axis:")),
-        textInput("y_title", label = h5("y-axis:")),
         textInput("sub_title", label = h5("Subtitle:")),
         textInput("caption", label = h5("Caption:"))
     ),
-    
+    wellPanel(
+      h4("x & y labels"),
+        textInput("x_title", label = h5("x-axis:")),
+        textInput("y_title", label = h5("y-axis:"))
+    ),
     hr()
   
-    ,offset = 1),
+    ,offset = 0),
     column(2,
+           wellPanel(
+             radioButtons("plottheme", "Theme",
+choices = c("Grey" = "theme_grey", "Classic" = "theme_classic","Minimal" = "theme_minimal", 
+            "Dark" = "theme_dark", "Light" = "theme_light", "B&W" = "theme_bw", 
+            "Linedraw" = "theme_linedraw", "Void" = "theme_void"))
+           ),
            conditionalPanel(condition = "input.plottype1 == 'geom_histogram' && input.choosetab == 1",
-        numericInput("binwidth", label = h5("Bin width:"), value = 2),
+        numericInput("binwidth", label = h5("Histogram: bin width:"), value = 2),
         hr()
            ),
         conditionalPanel(condition = "input.plottype2 == 'geom_point' && input.choosetab == 2",
@@ -224,10 +232,21 @@ server <- function(input, output, session) {
                    geom_density = geom_density(),
                    geom_freqpoly = geom_freqpoly(),
                    geom_bar = geom_bar(stat = "count"))
-   ggplot(data(), aes_string(x = input$variablex_only, color = input$variablex_only)) +
-      geomtype1 + labs(title = input$plot_title, x = input$x_title, y = input$y_title,
-                          subtitle = input$sub_title,
-                          caption = input$caption) + plot_theme
+    plot_theme <- switch(input$plottheme,
+                         theme_grey = theme_grey(),
+                         theme_classic = theme_classic(),
+                         theme_dark = theme_dark(),
+                         theme_light = theme_light(),
+                         theme_bw = theme_bw(),
+                         theme_minimal = theme_minimal(),
+                         theme_linedraw = theme_linedraw(),
+                         theme_void = theme_void())
+    ggplot(data(), aes_string(x = input$variablex_only, color = input$variablex_only)) +
+      geomtype1 + 
+     labs(title = input$plot_title, x = input$x_title, y = input$y_title,
+                          subtitle = input$sub_title, caption = input$caption) + 
+     plot_theme +
+     coord_cartesian(xlim=NULL, ylim=NULL)
   })
  
   # 2 variable plot
@@ -237,15 +256,26 @@ server <- function(input, output, session) {
                         geom_boxplot = geom_boxplot(),
                         geom_line = geom_line(),
                         geom_violin = geom_violin())
+    plot_theme <- switch(input$plottheme,
+                         theme_grey = theme_grey(),
+                         theme_classic = theme_classic(),
+                         theme_dark = theme_dark(),
+                         theme_light = theme_light(),
+                         theme_bw = theme_bw(),
+                         theme_minimal = theme_minimal(),
+                         theme_linedraw = theme_linedraw(),
+                         theme_void = theme_void())
    ggplot(data(), aes_string(x = input$variablex, y = input$variabley, color = input$variable_col)) +
-      geomtype2 + labs(title = input$plot_title, x = input$x_title, y = input$y_title,
-                         subtitle = input$sub_title,
-                         caption = input$caption) + plot_theme
+      geomtype2 + 
+     labs(title = input$plot_title, x = input$x_title, y = input$y_title,
+                         subtitle = input$sub_title, caption = input$caption) + 
+     plot_theme +
+     coord_cartesian(xlim=NULL, ylim=NULL)
 
   })
   
   # plot theme
-  plot_theme <- theme_classic()
+  
   
   # Export plot button
   
