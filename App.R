@@ -45,7 +45,7 @@ ui <- fluidPage(
                  offset = 0),
                  column(7,
                    h4("How to log into your SQL database:"),
-                   "This login connects to your SQL server via the RODBC package for R. A prerequisite is that you've connected your local machine to the SQL server via the local ODBC driver, for example", tags$link( a("like this.", target="_blank", href="https://www.youtube.com/watch?v=K3GZidOwGmM&")),
+                   "This login connects to your SQL server via the RODBC package for R. A prerequisite is that you've connected your local machine to the SQL server via your local ODBC driver, for example", tags$link( a("like this.", target="_blank", href="https://www.youtube.com/watch?v=K3GZidOwGmM&")),
                    "Use a 64-bit ODBC driver and 64-bit R.",
                         offset = 0)
                  
@@ -222,9 +222,19 @@ server <- function(input, output, session) {
     }
   })
   
-  # Output the dataset
+  # Printing R dataset
   output$dat <- renderPrint({
-    data()
+    get(input$dataset)
+  })
+  
+  # Printing R dataset structure
+  output$struct <- renderPrint({
+    str(get(input$dataset))
+  })
+  
+  # Printing R dataset summary
+  output$summary <- renderPrint({
+    summary(get(input$dataset))
   })
   
   # Pulling the list of variables for choice of variable x, for 1 variable plot
@@ -248,16 +258,6 @@ server <- function(input, output, session) {
   output$vary <- renderUI({
     selectInput("variabley", "Y variable:", choices = names(data()))
     
-  })
-  
-  # Output dataset structure
-  output$struct <- renderPrint({
-    str(get(input$dataset))
-  })
-  
-  # Output dataset summary
-  output$summary <- renderPrint({
-    summary(get(input$dataset))
   })
   
   # plots ----
@@ -314,7 +314,7 @@ server <- function(input, output, session) {
 
   })
   
-  # x & y labels
+  # x & y labels (label1 is for 1 variable plot, label2 is for 2 variable plot )
   
   xlabel1 <- reactive({
     if (input$xylabs == "Automatic"){
