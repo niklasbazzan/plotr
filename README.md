@@ -2,7 +2,7 @@
 ![](ggplotrpreview.png)
 
 ## What does it do?
-For now, the app allows you to visualise data through a number of different 1-2 variable plots. Titles are customisable, as well as axes ranges, themes, and colours. Regression lines can be added and histogram bin widths can be altered. You can explore the default R datasets, or connect to a SQL database and use that data.
+For now, the app allows you to visualise data through a number of different 1-2 variable plots. Titles are customisable, as well as axis ranges, themes, and colours. Regression lines can be added and histogram bin widths can be altered. You can explore the default R datasets, or connect to a SQL database and use that data.
 
 See the "Issues" tab for features and fixes that I hope to add soon. 
 
