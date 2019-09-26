@@ -189,12 +189,15 @@ ui <- fluidPage(
     hr(),
     wellPanel(
       h4("Axes range"),
-      radioButtons("axesrange", NULL, choices = c("Automatic", "Manual")),
-      conditionalPanel(condition = "input.axesrange == 'Manual'",
+      radioButtons("xaxesrange", "x", choices = c("Automatic", "Manual")),
+      conditionalPanel(condition = "input.xaxesrange == 'Manual'",
               numericInput("x_min", label = h5("x-axis minimum:"), value = 0),
-              numericInput("x_max", label = h5("x-axis maximum:"), value = 100),
-              numericInput("y_min", label = h5("y-axis minimum:"), value = 0),
-              numericInput("y_max", label = h5("y-axis maximum:"), value = 100)
+              numericInput("x_max", label = h5("x-axis maximum:"), value = 100)
+      ),
+      radioButtons("yaxesrange", "y", choices = c("Automatic", "Manual")),
+      conditionalPanel(condition = "input.yaxesrange == 'Manual'",
+          numericInput("y_min", label = h5("y-axis minimum:"), value = 0),
+          numericInput("y_max", label = h5("y-axis maximum:"), value = 100)
       )
     ),
 hr(),
@@ -215,7 +218,7 @@ hr(),
         wellPanel(numericInput("binwidth", label = h5("Histogram: bin width:"), value = 1)),
 hr()
     ),
-      conditionalPanel(condition = "input.plottype2 == 'geom_point' && input.choosetab == 2",
+      conditionalPanel(condition = "input.choosetab == 2",
         wellPanel(checkboxInput("regline", label = h5("Show regression line?"), value = FALSE)),
 hr()
       ),   
@@ -401,7 +404,7 @@ reg_line <- reactive({
 # Axis ranges
 
 xaxisrange <- reactive({
-  if(input$axesrange == "Automatic"){
+  if(input$xaxesrange == "Automatic"){
     xaxisrange <- NULL
   }else{
     xaxisrange <- c(input$x_min, input$x_max)
@@ -409,7 +412,7 @@ xaxisrange <- reactive({
 })
 
 yaxisrange <- reactive({
-  if(input$axesrange == "Automatic"){
+  if(input$yaxesrange == "Automatic"){
     yaxisrange <- NULL
   }else{
     yaxisrange <- c(input$y_min, input$y_max)
