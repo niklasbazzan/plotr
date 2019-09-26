@@ -27,4 +27,4 @@ Nik
 
 ## Acknowledgements
 
-This app is inspired by and borrows code from aagarw30's [gist](https://gist.github.com/aagarw30/c593799bc7d8557dc863411bb552e4f4) and dashee87's [dbplotR](https://github.com/dashee87/dbplotR).
+This app is inspired by and borrows code from aagarw30's [gist](https://gist.github.com/aagarw30/c593799bc7d8557dc863411bb552e4f4), dashee87's [dbplotR](https://github.com/dashee87/dbplotR), and dgrapov's [gist](https://gist.github.com/dgrapov/dfcf6ab2339b1cf19b090cfb8dadc855).
