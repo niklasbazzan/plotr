@@ -146,10 +146,12 @@ ui <- fluidPage(
                 uiOutput("varx"), uiOutput("vary")
               )
            ),
-    
-           wellPanel(
-             h4("Colour by variable:"), # Choose a variable to colour by
-             uiOutput("var_col")), 
+           conditionalPanel(
+             condition = "input.choosetab == 2",
+             wellPanel(
+               h4("Colour by variable:"), # Choose a variable to colour by
+               uiOutput("var_col"))
+           ),
            offset = 0),
       
    # Output plot
