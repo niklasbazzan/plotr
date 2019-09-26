@@ -21,13 +21,31 @@ ui <- fluidPage(
     h3("Step 1: Data"),
   mainPanel(
     tabsetPanel(id = "step1",
-      tabPanel("R datasets", value = 1, h4("Choose a dataset:"), # Choose R data
+      tabPanel("R Datasets", value = 1, # Choose R data
+               br(),
                selectInput(
                  "dataset",
-                 NULL,
+                 "Choose a dataset",
                  choices = ls('package:datasets'),
                  selected = "iris")),
-      tabPanel("Connect to a SQL database", value = 2, # Connect to SQL database
+      tabPanel("Upload a CSV File", value = 2, # Upload a dataset
+               br(),
+               fileInput("file1", "Choose a CSV File",
+                         multiple = TRUE,
+                         accept = c("text/csv",
+                                    "text/comma-separated-values,text/plain",
+                                    ".csv")),
+               # Input: Checkbox if file has header ----
+               checkboxInput("header", "Does your data have a header?", TRUE),
+               
+               # Input: Select separator ----
+               radioButtons("sep", "Separator",
+                            choices = c(Semicolon = ";",
+                                        Comma = ",",
+                                        Tab = "\t"),
+                            selected = ",")
+               ),
+      tabPanel("Connect to a SQL Database", value = 3, # Connect to SQL database
                br(),
                fluidRow(
                  column(5,
@@ -69,7 +87,7 @@ ui <- fluidPage(
                          conditionalPanel(condition = "input.choice==3", verbatimTextOutput("summary"))
                        )
       ),
-      conditionalPanel(condition = "input.step1 == 2", # Look at SQL data
+      conditionalPanel(condition = "input.step1 == 3", # Look at SQL data
         fluidRow(
     box(title="Type SQL Query", status = "info", width=12, solidHeader = T,collapsible = T,
     tagList(
@@ -173,10 +191,10 @@ ui <- fluidPage(
       h4("Axes range"),
       radioButtons("axesrange", NULL, choices = c("Automatic", "Manual")),
       conditionalPanel(condition = "input.axesrange == 'Manual'",
-                       numericInput("x_min", label = h5("x-axis minimum:"), value = 0),
-                       numericInput("x_max", label = h5("x-axis maximum:"), value = 100),
-                       numericInput("y_min", label = h5("y-axis minimum:"), value = 0),
-                       numericInput("y_max", label = h5("y-axis maximum:"), value = 100)
+              numericInput("x_min", label = h5("x-axis minimum:"), value = 0),
+              numericInput("x_max", label = h5("x-axis maximum:"), value = 100),
+              numericInput("y_min", label = h5("y-axis minimum:"), value = 0),
+              numericInput("y_max", label = h5("y-axis maximum:"), value = 100)
       )
     ),
 hr(),
@@ -217,7 +235,11 @@ server <- function(input, output, session) {
   data <- reactive({
     if (input$step1 == 1){
       data <- get(input$dataset)
-    } else if (input$step1 == 2){
+    } 
+    else if (input$step1 == 2){
+      data <- csv_data()
+    }
+    else if (input$step1 == 3){
       data <- sqldata()
     }
   })
@@ -259,6 +281,25 @@ server <- function(input, output, session) {
     selectInput("variabley", "Y variable:", choices = names(data()))
     
   })
+  
+  # CSV upload ----
+  
+ csv_data <- reactive({
+    
+    inFile <- input$file1
+    
+    if (is.null(inFile))
+      return(NULL)
+    
+    #could also store in a reactiveValues
+    read.csv(inFile$datapath,
+             header = input$header,
+             sep = input$sep)
+  })
+  
+  observeEvent(input$file1,{
+    inFile <<- csv_data()
+    })
   
   # plots ----
   
