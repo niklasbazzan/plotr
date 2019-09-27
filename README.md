@@ -1,4 +1,4 @@
-## _ggplotr_ is an R Shiny app, written for [Effektiv Altruisme Norge](https://effektivaltruisme.no/)
+## _plotr_ is an R Shiny app, written for [Effektiv Altruisme Norge](https://effektivaltruisme.no/)
 ![](ggplotrpreview.png)
 
 ## What does it do?
