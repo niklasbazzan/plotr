@@ -10,7 +10,7 @@ library(DT)
 ui <- fluidPage(
         fluidRow(
           column(10,
-            h1("Welcome to ggplotr."),
+            h1("plotr"),
             h5("An app for interactive visualisation of data."),
           offset = 0
           )
@@ -228,8 +228,17 @@ hr()
 hr()
    ),
 hr(),
+fluidRow(column(3,
+                h3("Export the plot:"),
+  wellPanel(
+    downloadButton("downloadPlot"), hr(),
+    "Note: You may have to add '.png' to your filename."
+  ),
+offset = 0)
+),
+hr(),
 h5("Feedback, bugs, suggestions?", tags$a(href = "niklas.bazzan@protonmail.com", "Reach out."))
-  
+ 
 )
 
 
@@ -309,7 +318,7 @@ server <- function(input, output, session) {
   # plots ----
   
   # 1 variable plot
-  output$plot1var <- renderPlot({
+ onevarplot <- reactive({
     geomtype1 <- switch(input$plottype1,
                    geom_histogram = geom_histogram(binwidth = input$binwidth, stat = "count"),
                    geom_dotplot = geom_dotplot(),
@@ -332,9 +341,14 @@ server <- function(input, output, session) {
      plot_theme +
      coord_cartesian(xlim = xaxisrange(), ylim= yaxisrange())
   })
- 
+
+  output$plot1var <- renderPlot({
+    req(onevarplot())
+    onevarplot()
+  })
+  
   # 2 variable plot
-  output$plot2var <- renderPlot({
+  twovarplot <- reactive({
     geomtype2 <- switch(input$plottype2,
                         geom_point = geom_point(),
                         geom_boxplot = geom_boxplot(),
@@ -349,7 +363,7 @@ server <- function(input, output, session) {
                          theme_minimal = theme_minimal(),
                          theme_linedraw = theme_linedraw(),
                          theme_void = theme_void())
-   ggplot(data(), aes_string(x = input$variablex, y = input$variabley, color = input$variable_col)) +
+   ggplot(as.data.frame(data()), aes_string(x = input$variablex, y = input$variabley, color = input$variable_col)) +
       geomtype2 + 
      labs(title = input$plot_title, x = xlabel2(), y = ylabel2(),
                          subtitle = input$sub_title, caption = input$caption) + 
@@ -359,6 +373,30 @@ server <- function(input, output, session) {
      
 
   })
+  
+  output$plot2var <- renderPlot({
+    req(twovarplot())
+    twovarplot()
+  })
+  
+# One plot object 
+  
+  theplot <- reactive({
+    switch(input$choosetab,
+           "1" = onevarplot(),
+           "2" = twovarplot())
+  })
+  
+# Plot download handler
+  output$downloadPlot <- downloadHandler(
+    filename = function(){
+      paste("plot", 'png', sep = ".")
+    },
+    content = function(file){
+      req(theplot())
+      ggsave(file, plot = theplot())
+    }
+  )
   
   # x & y labels (label1 is for 1 variable plot, label2 is for 2 variable plot )
   
@@ -422,7 +460,6 @@ yaxisrange <- reactive({
 })
   
 
-  # Export plot button
   
   
 # SQL connection ----
