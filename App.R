@@ -36,7 +36,7 @@ ui <- fluidPage(
                                     "text/comma-separated-values,text/plain",
                                     ".csv")),
                # Input: Checkbox if file has header ----
-               checkboxInput("header", "Does your data have a header?", TRUE),
+               checkboxInput("header", "Data has header.", TRUE),
                
                # Input: Select separator ----
                radioButtons("sep", "Separator",
@@ -62,7 +62,7 @@ ui <- fluidPage(
                    uiOutput("login_fail"),
                  offset = 0),
                  column(7,
-                   h4("How to log into your SQL database:"),
+                   h4("How to connect to a SQL database:"),
                    "This login connects to your SQL server via the RODBC package for R. A prerequisite is that you've connected your local machine to the SQL server via your local ODBC driver, for example", tags$link( a("like this.", target="_blank", href="https://www.youtube.com/watch?v=K3GZidOwGmM&")),
                    "Use a 64-bit ODBC driver and 64-bit R.",
                         offset = 0)
@@ -76,7 +76,7 @@ ui <- fluidPage(
   br(),
 
     mainPanel(
-      conditionalPanel(condition = "input.step1 == 1", # Look at R packages data
+      conditionalPanel(condition = "input.step1 == 1|2", # Look at R packages data
                        h4("Have a look a the data:"), 
                        value = 2,
                        radioButtons("choice", NULL, choices = c("Dataset" = 1, "Structure" = 2, "Summary" = 3), selected = 2),
@@ -260,17 +260,17 @@ server <- function(input, output, session) {
   
   # Printing R dataset
   output$dat <- renderPrint({
-    get(input$dataset)
+    print(data())
   })
   
   # Printing R dataset structure
   output$struct <- renderPrint({
-    str(get(input$dataset))
+    str(data())
   })
   
   # Printing R dataset summary
   output$summary <- renderPrint({
-    summary(get(input$dataset))
+    summary(data())
   })
   
   # Pulling the list of variables for choice of variable x, for 1 variable plot
@@ -380,7 +380,6 @@ server <- function(input, output, session) {
   })
   
 # One plot object 
-  
   theplot <- reactive({
     switch(input$choosetab,
            "1" = onevarplot(),
