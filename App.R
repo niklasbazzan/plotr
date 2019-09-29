@@ -10,7 +10,7 @@ library(DT)
 ui <- fluidPage(
         fluidRow(
           column(10,
-            h1("TEST"),
+            h1("plotr"),
             h5("An app for interactive visualisation of data."),
           offset = 0
           )
