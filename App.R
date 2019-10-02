@@ -36,12 +36,12 @@ ui <- fluidPage(
                                     "text/comma-separated-values,text/plain",
                                     ".csv")),
                # Input: Checkbox if file has header ----
-               checkboxInput("header", "Data has header.", TRUE),
+               checkboxInput("header", "Data has header", TRUE),
                
                # Input: Select separator ----
                radioButtons("sep", "Separator",
-                            choices = c(Semicolon = ";",
-                                        Comma = ",",
+                            choices = c(Comma = ",",
+                                        Semicolon = ";",
                                         Tab = "\t"),
                             selected = ",")
                ),
@@ -180,12 +180,15 @@ ui <- fluidPage(
     ), offset = 0),
     column(3,
     wellPanel(
-      h4("x & y labels"),
-        radioButtons("xylabs", NULL, choices = c("Automatic", "Manual", "None")),
-        conditionalPanel(condition = "input.xylabs == 'Manual'",
-          textInput("x_title", label = h5("x-axis:")),
-          textInput("y_title", label = h5("y-axis:"))
-        )
+      h4("Axis labels"),
+        radioButtons("xlab", "x", choices = c("Automatic", "Manual", "None")),
+        conditionalPanel(condition = "input.xlab == 'Manual'",
+          textInput("x_title", label = NULL)
+        ),
+        radioButtons("ylab", "y", choices = c("Automatic", "Manual", "None")),
+        conditionalPanel(condition = "input.ylab == 'Manual'",
+                       textInput("y_title", label = NULL)
+      )
         
     ),
     hr(),
@@ -400,35 +403,35 @@ server <- function(input, output, session) {
   # x & y labels (label1 is for 1 variable plot, label2 is for 2 variable plot )
   
   xlabel1 <- reactive({
-    if (input$xylabs == "Automatic"){
+    if (input$xlab == "Automatic"){
       xlabel1 <- input$variablex_only
-    } else if(input$xylabs == "Manual"){
+    } else if(input$xlab == "Manual"){
       xlabel1 <- input$x_title}
-      else if (input$xylabs == "None"){
+      else if (input$xlab == "None"){
       ylabel2 <- NULL}
   })
   xlabel2 <- reactive({
-    if (input$xylabs == "Automatic"){
+    if (input$xlab == "Automatic"){
       xlabel2 <- input$variablex
-    } else if(input$xylabs == "Manual"){
+    } else if(input$xlab == "Manual"){
       xlabel2 <- input$x_title}
-      else if (input$xylabs == "None"){
+      else if (input$xlab == "None"){
       ylabel2 <- NULL}
   })
   ylabel1 <- reactive({
-    if (input$xylabs == "Automatic"){
+    if (input$ylab == "Automatic"){
       ylabel1 <- "Count"
-    } else if (input$xylabs == "Manual"){
+    } else if (input$ylab == "Manual"){
       ylabel1 <- input$y_title}
-      else if (input$xylabs == "None"){
+      else if (input$ylab == "None"){
       ylabel2 <- NULL}
   })
   ylabel2 <- reactive({
-    if (input$xylabs == "Automatic"){
+    if (input$ylab == "Automatic"){
       ylabel2 <- input$variabley
-    } else if (input$xylabs == "Manual"){
+    } else if (input$ylab == "Manual"){
       ylabel2 <- input$y_title}
-      else if (input$xylabs == "None"){
+      else if (input$ylab == "None"){
       ylabel2 <- NULL}
   })
   
