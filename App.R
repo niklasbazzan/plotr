@@ -138,34 +138,35 @@ ui <- fluidPage(
              wellPanel(
                 uiOutput("varx_only")
                        )
-           ),
-           conditionalPanel(
-             condition = "input.choosetab == 2",
-                h3("Step 3: Select variables"),
-             wellPanel(
-                uiOutput("varx"), uiOutput("vary")
-              )
-           ),
-           conditionalPanel(
-             condition = "input.choosetab == 2",
-             wellPanel(
-               h4("Colour by variable:"), # Choose a variable to colour by
-               uiOutput("var_col"))
-           ),
-           offset = 0),
+           ), 
+      conditionalPanel(
+      condition = "input.choosetab == 2",
+      h3("Step 3: Select variables"),
+      wellPanel(
+        uiOutput("varx"), uiOutput("vary")
+      )
+    ), offset = 0),
+    column(4,
+    conditionalPanel(
+      condition = "input.choosetab == 2",
+      h3("Colour by variable:"), # Choose a variable to colour by
+      wellPanel(
+        uiOutput("var_col")), offset = 4))
+    ),
       
    # Output plot
-    column(6,
-      conditionalPanel(
-        condition = "input.choosetab == 1",
-        plotOutput("plot1var") 
-      ),         
-      conditionalPanel(
-        condition = "input.choosetab == 2",
-        plotOutput("plot2var") 
-      )
-           
-           ,offset = 1)),
+fluidRow(
+  column(8,
+         conditionalPanel(
+           condition = "input.choosetab == 1",
+           plotOutput("plot1var") 
+         ),         
+         conditionalPanel(
+           condition = "input.choosetab == 2",
+           plotOutput("plot2var") 
+         )
+         
+         , offset = 1)),
   
   br(),
   
