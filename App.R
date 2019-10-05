@@ -235,7 +235,12 @@ hr(),
 fluidRow(column(3,
                 h3("Export the plot:"),
   wellPanel(
-    downloadButton("downloadPlot"), hr(),
+    downloadButton("downloadPlot"), 
+    hr(),
+    h4("Dimensions (inches):"),
+    numericInput("plotwidth", "Width:", 6, min = 0),
+    numericInput("plotheight", "Height:", 4, min = 0),
+    hr(),
     "Note: You may have to add '.png' to your filename."
   ),
 offset = 0)
@@ -397,7 +402,8 @@ server <- function(input, output, session) {
     },
     content = function(file){
       req(theplot())
-      ggsave(file, plot = theplot())
+      ggsave(file, plot = theplot(), width = input$plotwidth, 
+             height = input$plotheight)
     }
   )
   
