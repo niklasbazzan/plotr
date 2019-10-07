@@ -1,5 +1,5 @@
 ## _plotr_ is an R Shiny app, written for [Effektiv Altruisme Norge](https://effektivaltruisme.no/)
-![](ggplotrpreview.png)
+![](plotrpreview.png)
 
 ## What does it do?
 For now, the app allows you to visualise data through a number of different 1-2 variable plots. Titles and labels are customisable, as well as axis ranges, themes, and colours. Regression lines can be added and histogram bin widths can be altered. You can explore data from the default R datasets, upload a CSV file (ie. Excel stuff), or connect to a SQL database.
