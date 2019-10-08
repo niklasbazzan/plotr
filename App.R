@@ -4,7 +4,6 @@ library(shinydashboard)
 library(tidyverse)
 library(RODBC)
 library(DT)
-library(colourpicker)
 
 
 # UI ----
