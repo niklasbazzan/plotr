@@ -4,6 +4,7 @@ library(shinydashboard)
 library(tidyverse)
 library(RODBC)
 library(DT)
+library(colourpicker)
 
 
 # UI ----
@@ -28,22 +29,23 @@ ui <- fluidPage(
                  "Choose a dataset",
                  choices = ls('package:datasets'),
                  selected = "iris")),
-      tabPanel("Upload a CSV File", value = 2, # Upload a dataset
-               br(),
-               fileInput("file1", "Choose a CSV File",
-                         multiple = TRUE,
-                         accept = c("text/csv",
-                                    "text/comma-separated-values,text/plain",
-                                    ".csv")),
-               # Input: Checkbox if file has header ----
-               checkboxInput("header", "Data has header", TRUE),
+      tabPanel("Upload a CSV File", value = 2, 
                
-               # Input: Select separator ----
-               radioButtons("sep", "Separator",
+               br(),
+               
+  checkboxInput("header", "Data has header", TRUE),  # File has header?
+               
+  radioButtons("sep", "Separator", # Select separator
                             choices = c(Comma = ",",
                                         Semicolon = ";",
                                         Tab = "\t"),
-                            selected = ",")
+                            selected = ","),
+               
+  fileInput("file1", "Choose a CSV File", # Upload a dataset
+                         multiple = TRUE,
+                         accept = c("text/csv",
+                                    "text/comma-separated-values,text/plain",
+                                    ".csv"))
                ),
       tabPanel("Connect to a SQL Database", value = 3, # Connect to SQL database
                br(),
@@ -151,22 +153,15 @@ ui <- fluidPage(
       condition = "input.choosetab == 2",
       h3("Colour by variable:"), # Choose a variable to colour by
       wellPanel(
-        uiOutput("var_col")), offset = 4))
+        uiOutput("var_col"))
+      , offset = 4))
     ),
       
    # Output plot
 fluidRow(
   column(8,
-         conditionalPanel(
-           condition = "input.choosetab == 1",
-           plotOutput("plot1var") 
-         ),         
-         conditionalPanel(
-           condition = "input.choosetab == 2",
-           plotOutput("plot2var") 
-         )
-         
-         , offset = 1)),
+         plotOutput("theplot") 
+, offset = 1)),
   
   br(),
   
@@ -350,11 +345,6 @@ server <- function(input, output, session) {
      plot_theme +
      coord_cartesian(xlim = xaxisrange(), ylim= yaxisrange())
   })
-
-  output$plot1var <- renderPlot({
-    req(onevarplot())
-    onevarplot()
-  })
   
   # 2 variable plot
   twovarplot <- reactive({
@@ -383,16 +373,17 @@ server <- function(input, output, session) {
 
   })
   
-  output$plot2var <- renderPlot({
-    req(twovarplot())
-    twovarplot()
-  })
+
   
 # One plot object 
   theplot <- reactive({
     switch(input$choosetab,
            "1" = onevarplot(),
            "2" = twovarplot())
+  })
+  
+  output$theplot <- renderPlot({
+    theplot()
   })
   
 # Plot download handler
