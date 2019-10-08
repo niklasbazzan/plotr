@@ -2,7 +2,7 @@
 ![](plotrpreview.png)
 
 ## What does it do?
-For now, the app allows you to visualise data through a number of different 1-2 variable plots. Titles and labels are customisable, as well as axis ranges, themes, and colours. Regression lines can be added and histogram bin widths can be altered. You can explore data from the default R datasets, upload a CSV file (ie. Excel stuff), or connect to a SQL database.
+For now, the app allows you to visualise data through a number of different 1-2 variable plots. Titles and labels are customisable, as well as axis ranges, themes, and colours. Regression lines can be added and histogram bin widths can be altered. You can explore data from the default R datasets, upload a CSV file (ie. Excel stuff), or connect to a SQL database. Once you are happy with your plot, you can download it as a .png of customizable dimensions.
 
 See the "Issues" tab for features and fixes that I hope to add soon. 
 
@@ -10,7 +10,7 @@ See the "Issues" tab for features and fixes that I hope to add soon.
 
 First, install [__R__](https://cran.r-project.org/bin/windows/base/), the 64-bit version.
 Next, install [__RStudio__](https://www.rstudio.com/products/rstudio/).
-Then install the following packages in __RStudio__. Simply paste the following code into the console.
+Then install the following packages in __RStudio__, by simply pasting the following code into the console.
 
 ```R
 install.packages(c("shiny", "shinyBS", "shinydashboard", "tidyverse", "DT", "RODBC" ))
