@@ -21,7 +21,7 @@ Next, just open the "App.R" file in __RStudio__ and press _Run App_ in the top r
 
 Enjoy!
 
-Love,
+Sincerely,
 
 Nik
 
